@@ -37,7 +37,7 @@ class PeruFrame(wx.Frame):
         self.CreateStatusBar()
         self.SetStatusText("I love you!")
 
-        # Prepare the menu bar
+        # Prepare the menu bar test
         menuBar = wx.MenuBar()
 
         menu1 = wx.Menu()
