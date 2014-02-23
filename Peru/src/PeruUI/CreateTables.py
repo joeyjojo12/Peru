@@ -1,27 +1,20 @@
 #! /usr/bin/env python3.3
-import sys
+# -*- coding: utf-8 -*-
 
 import sqlite3 as lite
 import sys
 
 try:
   
-    con = lite.connect('Peru.db')
+    con = lite.connect('database/peru.db')
     
     cur = con.cursor()
     cur.executescript("""
   
-        DROP TABLE IF EXISTS WitnessGroup;
-        DROP TABLE IF EXISTS Witness;
-        DROP TABLE IF EXISTS Official;
         DROP TABLE IF EXISTS CourtCase;
         DROP TABLE IF EXISTS HealingTypes;
-        DROP TABLE IF EXISTS ProsecutorGroup;
-        DROP TABLE IF EXISTS Prosecutor;
-        DROP TABLE IF EXISTS DefendantGroup;
-        DROP TABLE IF EXISTS Defendant;
-        DROP TABLE IF EXISTS PlaintiffGroup;
-        DROP TABLE IF EXISTS Plaintiff;
+        DROP TABLE IF EXISTS PersonGroup;
+        DROP TABLE IF EXISTS Person;
         DROP TABLE IF EXISTS GenderType;
         DROP TABLE IF EXISTS RegionType;
         DROP TABLE IF EXISTS ReferenceGroup;
@@ -31,7 +24,7 @@ try:
                                Citation     TEXT, 
                                Archive      TEXT, 
                                Stack        TEXT, 
-                               Number       INTEGER,
+                               Number         INTEGER,
                                DocName      TEXT,
                                Author       TEXT,
                                Year         INTEGER,
@@ -39,7 +32,7 @@ try:
                                Notes        TEXT
         );
         
-        CREATE TABLE ReferenceGroup(ReferenceGroupId INTEGER,
+        CREATE TABLE ReferenceGroup(ReferenceGroupId INTEGER NOT NULL,
                                     ReferenceId      INTEGER NOT NULL,
                                     PRIMARY KEY(ReferenceGroupId, ReferenceId),
                                     FOREIGN KEY(ReferenceId) REFERENCES Reference(ReferenceId)
@@ -59,98 +52,39 @@ try:
         
         INSERT INTO GenderType(Gender, Seq) VALUES ('M', 1);
         INSERT INTO GenderType(Gender, Seq) VALUES ('F', 2);
-    
-        CREATE TABLE Plaintiff(PlaintiffId   INTEGER PRIMARY KEY,
-                               FristName   TEXT, 
-                               LastName    TEXT,
-                               Location    TEXT,
-                               Region      REFERENCES RegionType(Region),
-                               Gender      REFERENCES GenderType(Gender),
-                               Age         INTEGER,
-                               AgeRange    INTEGER,
-                               Occupation  TEXT,
-                               Religion    TEXT,
-                               Notes       TEXT
+
+        CREATE TABLE PersonType (Person    TEXT PRIMARY KEY NOT NULL,
+                                 Seq       INTEGER
         );
         
-        CREATE TABLE PlaintiffGroup(PlaintiffGroupId INTEGER,
-                                    PlaintiffId      INTEGER NOT NULL,
-                                    PRIMARY KEY(PlaintiffGroupId, PlaintiffId),
-                                    FOREIGN KEY(PlaintiffId) REFERENCES Plaintiff(PlaintiffId)
+        INSERT INTO PersonType(Gender, Seq) VALUES ('Plaintiff',  1);
+        INSERT INTO PersonType(Gender, Seq) VALUES ('Defendant',  2);
+        INSERT INTO PersonType(Gender, Seq) VALUES ('Prosecutor', 3);
+        INSERT INTO PersonType(Gender, Seq) VALUES ('Official',   4);
+        INSERT INTO PersonType(Gender, Seq) VALUES ('Witness',    5);
+
+
+        CREATE TABLE Person(PersonID    INTEGER PRIMARY KEY, 
+                            Type        REFERENCES PersonType(Type),
+                            FristName   TEXT, 
+                            LastName    TEXT,
+                            Location    TEXT,
+                            Region      REFERENCES RegionType(Region),
+                            Gender      REFERENCES GenderType(Gender),
+                            Age         INTEGER,
+                            AgeRange    INTEGER,
+                            Occupation  TEXT,
+                            Religion    TEXT,
+                            Profession  TEXT,
+                            Notes       TEXT
         );
         
-        CREATE TABLE Defendant(DefendantId INTEGER PRIMARY KEY,
-                               FristName   TEXT, 
-                               LastName    TEXT,
-                               Location    TEXT,
-                               Region      REFERENCES RegionType(Region),
-                               Gender      REFERENCES GenderType(Gender),
-                               Age         INTEGER,
-                               AgeRange    INTEGER,
-                               Occupation  TEXT,
-                               Religion    TEXT,
-                               Notes       TEXT
+        CREATE TABLE PersonGroup(PersonGroupId INTEGER NOT NULL, 
+                                 PersonId      INTEGER NOT NULL,
+                                 PRIMARY KEY(PersonGroupId, PersonId),
+                                 FOREIGN KEY(PersonId) REFERENCES Person(PersonId)
         );
-        
-        CREATE TABLE DefendantGroup(DefendantGroupId INTEGER,
-                                    DefendantId      INTEGER NOT NULL,
-                                    PRIMARY KEY(DefendantGroupId, DefendantId),
-                                    FOREIGN KEY(DefendantId) REFERENCES Defendant(DefendantId)
-        );
-        
-        CREATE TABLE Witness(WitnessId INTEGER PRIMARY KEY,
-                             FristName   TEXT, 
-                             LastName    TEXT,
-                             Location    TEXT,
-                             Region      REFERENCES RegionType(Region),
-                             Gender      REFERENCES GenderType(Gender),
-                             Age         INTEGER,
-                             AgeRange    INTEGER,
-                             Occupation  TEXT,
-                             Religion    TEXT,
-                             Profession  TEXT,
-                             Notes       TEXT
-        );
-        
-        CREATE TABLE WitnessGroup(WitnessGroupId INTEGER,
-                                  WitnessId      INTEGER NOT NULL,
-                                  PRIMARY KEY(WitnessGroupId, WitnessId),
-                                  FOREIGN KEY(WitnessId) REFERENCES Witness(WitnessId)
-        );
-        
-        CREATE TABLE Prosecutor(ProsecutorId INTEGER PRIMARY KEY,
-                                FristName   TEXT, 
-                                LastName    TEXT,
-                                Location    TEXT,
-                                Region      REFERENCES RegionType(Region),
-                                Gender      REFERENCES GenderType(Gender),
-                                Age         INTEGER,
-                                AgeRange    INTEGER,
-                                Occupation  TEXT,
-                                Religion    TEXT,
-                                Notes       TEXT
-        );
-        
-        CREATE TABLE ProsecutorGroup(ProsecutorGroupId INTEGER,
-                                     ProsecutorId      INTEGER NOT NULL,
-                                     PRIMARY KEY(ProsecutorGroupId, ProsecutorId),
-                                     FOREIGN KEY(ProsecutorId) REFERENCES Prosecutor(ProsecutorId)
-        );
-        
-        CREATE TABLE Official(OfficialId   INTEGER PRIMARY KEY,
-                              FristName    TEXT, 
-                              LastName     TEXT,
-                              Title        TEXT,
-                              Location     TEXT,
-                              Region       REFERENCES RegionType(Region),
-                              Gender       REFERENCES GenderType(Gender),
-                              Age          INTEGER,
-                              AgeRange     INTEGER,
-                              Occupation   TEXT,
-                              Religion     TEXT,
-                              Notes        TEXT
-        );
-        
+           
         CREATE TABLE HealingTypes(HealingTypesID INTEGER PRIMARY KEY,
                                   CourtCaseID    INTEGER NOT NULL,
                                   DefendantID    INTEGER NOT NULL,
@@ -171,7 +105,7 @@ try:
                                StartDate            DATE,
                                EndDate              DATE,
                                ReferenceGroupID     INTEGER,
-                               PlaintiffGroupID     INTEGER,
+                               PlaintiffGroupID       INTEGER,
                                DefendantGroupID     INTEGER,
                                ProsecutorGroupID    INTEGER,
                                WitnessGroupID       INTEGER,
@@ -181,7 +115,7 @@ try:
                                FurtherResearchNotes TEXT,
                                HealingNotes         TEXT,
                                FOREIGN KEY(ReferenceGroupID)  REFERENCES ReferenceGroup(ReferenceGroupID),
-                               FOREIGN KEY(PlaintiffGroupID)  REFERENCES PlaintiffGroup(PlaintiffGroupID),
+                               FOREIGN KEY(PlaintiffGroupID)    REFERENCES PlaintiffGroup(PlaintiffGroupID),
                                FOREIGN KEY(DefendantGroupID)  REFERENCES DefendantGroup(DefendantGroupID),
                                FOREIGN KEY(ProsecutorGroupID) REFERENCES ProsecutorGroup(ProsecutorGroupID),
                                FOREIGN KEY(WitnessGroupID)    REFERENCES WitnessGroup(WitnessGroupID)
@@ -203,3 +137,8 @@ finally:
   
     if con:
         con.close()
+    
+  
+  
+  
+  

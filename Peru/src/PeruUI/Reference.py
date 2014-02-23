@@ -2,7 +2,6 @@ import wx
 import PeruConstants, ReferenceDB
 
 def getReferenceNotebookInfo(referencePage):
-    output = []
     
     for i in range(0,referencePage.nestedNotebook.GetPageCount()):
         output.append(getReferenceInfo(referencePage.nestedNotebook.GetPage(i)))
@@ -10,7 +9,8 @@ def getReferenceNotebookInfo(referencePage):
     return output
 
 def getReferenceInfo(referencePage):    
-    return [str(referencePage.Citation.GetValue()),
+    return [str(referencePage.RefID.GetValue()),
+            str(referencePage.Citation.GetValue()),
             str(referencePage.Archive.GetValue()),
             str(referencePage.Stack.GetValue()),
             str(referencePage.Number.GetValue()),
@@ -26,6 +26,8 @@ class ReferencePanel(wx.Panel):
         wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY)
 
 
+        label0 = wx.StaticText(self, label="Reference ID :")        
+        RefID = self.RefID = wx.TextCtrl(self, size=(50,-1))
         label1 = wx.StaticText(self, label="Citation :")        
         Citation = self.Citation = wx.TextCtrl(self, size=(400,-1))
         label2 = wx.StaticText(self, label="Archive :")
@@ -47,32 +49,38 @@ class ReferencePanel(wx.Panel):
         
         space = 6
         infoSizer = wx.GridBagSizer(hgap=space, vgap=space)
-        infoSizer.Add(label1,  (1,0))
-        infoSizer.Add(Citation,(1,1))
-        infoSizer.Add(label2,  (2,0))
-        infoSizer.Add(Archive, (2,1))
-        infoSizer.Add(label3,  (3,0))
-        infoSizer.Add(Stack,   (3,1))
-        infoSizer.Add(label4,  (4,0))
-        infoSizer.Add(Number,  (4,1))
-        infoSizer.Add(label5,  (5,0))
-        infoSizer.Add(DocName, (5,1))
-        infoSizer.Add(label6,  (6,0))
-        infoSizer.Add(Author,  (6,1))
-        infoSizer.Add(label7,  (7,0))
-        infoSizer.Add(Year,    (7,1))
-        infoSizer.Add(label8,  (8,0))
-        infoSizer.Add(Type,    (8,1))
-        infoSizer.Add(label9,  (9,0))
-        infoSizer.Add(Notes,   (9,1), (5,20), flag=wx.EXPAND)
+        infoSizer.Add(label0,  (1,0))
+        infoSizer.Add(RefID,   (1,1))
+        infoSizer.Add(label1,  (2,0))
+        infoSizer.Add(Citation,(2,1))
+        infoSizer.Add(label2,  (3,0))
+        infoSizer.Add(Archive, (3,1))
+        infoSizer.Add(label3,  (4,0))
+        infoSizer.Add(Stack,   (4,1))
+        infoSizer.Add(label4,  (5,0))
+        infoSizer.Add(Number,  (5,1))
+        infoSizer.Add(label5,  (6,0))
+        infoSizer.Add(DocName, (6,1))
+        infoSizer.Add(label6,  (7,0))
+        infoSizer.Add(Author,  (7,1))
+        infoSizer.Add(label7,  (8,0))
+        infoSizer.Add(Year,    (8,1))
+        infoSizer.Add(label8,  (9,0))
+        infoSizer.Add(Type,    (9,1))
+        infoSizer.Add(label9,  (10,0))
+        infoSizer.Add(Notes,   (10,1), (5,20), flag=wx.EXPAND)
         
         self.buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.saveReferenceButton = wx.Button(self, -1, "Save Single Reference")
-        self.readReferenceButton = wx.Button(self, -1, "Read Single Reference")        
+        self.saveReferenceButton = wx.Button(self, -1, "Save Reference")
+        self.readReferenceButton = wx.Button(self, -1, "Read Reference")
+        self.deleteReferenceButton = wx.Button(self, -1, "Delete Reference")        
         self.buttonSizer.Add(self.saveReferenceButton, 0, wx.ALIGN_RIGHT)
         self.buttonSizer.Add(self.readReferenceButton, 0, wx.ALIGN_RIGHT)
+        self.buttonSizer.Add(self.deleteReferenceButton, 0, wx.ALIGN_RIGHT)
         
-        self.Bind(wx.EVT_BUTTON, self.OnButtonSave, self.saveReferenceButton)
+        self.Bind(wx.EVT_BUTTON, self.OnButtonSave,   self.saveReferenceButton)
+        self.Bind(wx.EVT_BUTTON, self.OnButtonRead,   self.readReferenceButton)
+        self.Bind(wx.EVT_BUTTON, self.OnButtonDelete, self.deleteReferenceButton)
             
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(infoSizer, 1, wx.EXPAND)
@@ -81,7 +89,13 @@ class ReferencePanel(wx.Panel):
         self.SetSizer(sizer)
         
     def OnButtonSave(self, evt):
-        ReferenceDB.InsertReference(getReferenceInfo(self))
+        ReferenceDB.InsertUpdateReference(getReferenceInfo(self))
+        
+    def OnButtonRead(self, evt):
+        ReferenceDB.ReadReference(getReferenceInfo(self))
+        
+    def OnButtonDelete(self, evt):
+        ReferenceDB.DeleteReference(getReferenceInfo(self))
         
 class NestedReferencePanel(wx.Panel):
     """
