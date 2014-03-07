@@ -12,7 +12,7 @@ def ReferenceInsertFromList(references):
     return resultString
 
 def ReferenceReadSingleStatement(fields):    
-    return("SELECT * FROM REFERENCE WHERE " + PeruConstants.REFERENCE_FIELDS[0] + " = " + fields[0] + ";\n")
+    return("SELECT * FROM REFERENCE WHERE " + PeruConstants.REFERENCE_FIELDS[0] + " = '" + fields[0] + "';\n")
 
 def ReferenceInsertStatement(fields):
     
@@ -24,16 +24,16 @@ def ReferenceInsertStatement(fields):
     if len(fields) == (len(PeruConstants.REFERENCE_FIELDS) - 1):
         return ("INSERT INTO " + PeruConstants.REFERENCE + 
                 "(" + ",".join(PeruConstants.REFERENCE_FIELDS[1:]) + ")" +
-                " VALUES(" + ",".join(strFields) + ");\n")
+                " VALUES(" + "\',\'".join(strFields) + ");\n")
     else:
-        return "INSERT INTO " + PeruConstants.REFERENCE + " VALUES(" + ",".join(strFields) + ");\n"
+        return "INSERT INTO " + PeruConstants.REFERENCE + " (" + ",".join(PeruConstants.REFERENCE_FIELDS[1:]) + ")" + " VALUES('" + "','".join(strFields[1:]) + "');\n"
 
 def ReferenceUpdateStatement(fields):
     
     if len(fields) != len(PeruConstants.REFERENCE_FIELDS):
         return -1
     
-    strFields = [(PeruConstants.REFERENCE_FIELDS[i] + ' = ' + str(fields[i])) for i in range(len(fields))]
+    strFields = [(PeruConstants.REFERENCE_FIELDS[i] + " = '" + str(fields[i]) + "'")  for i in range(1, len(fields))]
     
     return ("UPDATE REFERENCE" +
             " SET " + ",".join(strFields) + 
@@ -51,9 +51,10 @@ def ReadReference(fields):
     
 def InsertUpdateReference(fields):
     if fields[0] != '':
-        InsertReference(fields)
+        return UpdateReference(fields)
     else:
-        UpdateReference(fields)
+        return InsertReference(fields)
+        
 
 def InsertReference(fields):
     database = PeruDB.PeruDB()
@@ -61,21 +62,18 @@ def InsertReference(fields):
     database.closeDB()
     return output
 
-def DeleteReference(fields):
+def UpdateReference(fields):
     database = PeruDB.PeruDB()
+    print ReferenceUpdateStatement(fields)
+    #output = database.update(ReferenceUpdateStatement(fields))
+    database.closeDB()
+    #return output
+
+def DeleteReference(fields):
+    database = PeruDB.PeruDB()    
     output = database.delete(ReferenceDeleteStatement(fields))
     database.closeDB()
     return output
-    
-
-def ReferenceUpdateStatement(fields):
-    
-    if len(fields) > len(PeruConstants.REFERENCE_FIELDS) or len(fields) < len(PeruConstants.REFERENCE_FIELDS) - 1:
-        return -1
-    
-    strFields = [str(field) for field in fields]
-    
-    return "UPDATE " + PeruConstants.REFERENCE + " VALUES(" + ",".join(strFields) + ");\n"
 
 def ReferenceReadStatement(ID):
     

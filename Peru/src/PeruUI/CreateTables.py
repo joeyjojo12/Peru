@@ -6,7 +6,7 @@ import sys
 
 try:
   
-    con = lite.connect('database/peru.db')
+    con = lite.connect('peru.db')
     
     cur = con.cursor()
     cur.executescript("""
@@ -14,6 +14,7 @@ try:
         DROP TABLE IF EXISTS CourtCase;
         DROP TABLE IF EXISTS HealingTypes;
         DROP TABLE IF EXISTS PersonGroup;
+        DROP TABLE IF EXISTS PersonType;
         DROP TABLE IF EXISTS Person;
         DROP TABLE IF EXISTS GenderType;
         DROP TABLE IF EXISTS RegionType;
@@ -24,7 +25,7 @@ try:
                                Citation     TEXT, 
                                Archive      TEXT, 
                                Stack        TEXT, 
-                               Number         INTEGER,
+                               Number       INTEGER,
                                DocName      TEXT,
                                Author       TEXT,
                                Year         INTEGER,
@@ -57,11 +58,11 @@ try:
                                  Seq       INTEGER
         );
         
-        INSERT INTO PersonType(Gender, Seq) VALUES ('Plaintiff',  1);
-        INSERT INTO PersonType(Gender, Seq) VALUES ('Defendant',  2);
-        INSERT INTO PersonType(Gender, Seq) VALUES ('Prosecutor', 3);
-        INSERT INTO PersonType(Gender, Seq) VALUES ('Official',   4);
-        INSERT INTO PersonType(Gender, Seq) VALUES ('Witness',    5);
+        INSERT INTO PersonType(Person, Seq) VALUES ('Plaintiff',  1);
+        INSERT INTO PersonType(Person, Seq) VALUES ('Defendant',  2);
+        INSERT INTO PersonType(Person, Seq) VALUES ('Prosecutor', 3);
+        INSERT INTO PersonType(Person, Seq) VALUES ('Official',   4);
+        INSERT INTO PersonType(Person, Seq) VALUES ('Witness',    5);
 
 
         CREATE TABLE Person(PersonID    INTEGER PRIMARY KEY, 

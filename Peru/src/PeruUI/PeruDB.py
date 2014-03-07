@@ -11,7 +11,7 @@ class PeruDB:
     
     def openDB(self):
         try:
-            self.con = lite.connect('test.db')
+            self.con = lite.connect(PeruConstants.PERU_DB)
             cur = self.con.cursor()
             cur.execute('SELECT SQLITE_VERSION()')
             data = cur.fetchone()
@@ -38,21 +38,21 @@ class PeruDB:
         except:
             return [1, "Unexpected Error!"]
 
-    def insert(self, commandString):
-        return executeCommand(commandString)            
-
-    def update(self, commandString):
-        return executeCommand(commandString)
-
-    def delete(self, commandString):
-        return executeCommand(commandString)
-
     def executeCommand(self, commandString):
         try:
             cur = self.con.cursor()
-            cur.execute(querryString)
-            con.commit()
+            cur.execute(commandString)
+            self.con.commit()
             return[0, cur.rowcount]
         
         except lite.Error, e:
             return [1, "Error %s:" % e.args[0]]
+
+    def insert(self, commandString):
+        return self.executeCommand(commandString)            
+
+    def update(self, commandString):
+        return self.executeCommand(commandString)
+
+    def delete(self, commandString):
+        return self.executeCommand(commandString)

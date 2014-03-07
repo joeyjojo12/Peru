@@ -2,6 +2,7 @@ import wx
 import PeruConstants, ReferenceDB
 
 def getReferenceNotebookInfo(referencePage):
+    output = []
     
     for i in range(0,referencePage.nestedNotebook.GetPageCount()):
         output.append(getReferenceInfo(referencePage.nestedNotebook.GetPage(i)))
@@ -89,13 +90,13 @@ class ReferencePanel(wx.Panel):
         self.SetSizer(sizer)
         
     def OnButtonSave(self, evt):
-        ReferenceDB.InsertUpdateReference(getReferenceInfo(self))
+        print (ReferenceDB.InsertUpdateReference(getReferenceInfo(self)))[1]
         
     def OnButtonRead(self, evt):
-        ReferenceDB.ReadReference(getReferenceInfo(self))
+        print (ReferenceDB.ReadReference(getReferenceInfo(self)))[1]
         
     def OnButtonDelete(self, evt):
-        ReferenceDB.DeleteReference(getReferenceInfo(self))
+        print (ReferenceDB.DeleteReference(getReferenceInfo(self)))[1]
         
 class NestedReferencePanel(wx.Panel):
     """

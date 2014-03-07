@@ -1,4 +1,4 @@
-PERU_DB = 'Peru.db'
+PERU_DB = 'peru.db'
 
 GENDER_LIST = ['M', 'F']
 DEFAULT_GENDER = GENDER_LIST[0]
